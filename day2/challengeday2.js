@@ -8,25 +8,32 @@ const newData = datastrings.map((value) => {
     
     return {
             direction: direction,
-            distance:distance
+            distance: distance
             }
 })
 
-//convert data into a Map with reduce
-let counts = newData.reduce((prev, curr) => {
-    let count = prev.get(curr.direction) || 0;
-    prev.set(curr.direction, curr.distance + count);
-    return prev;
-  }, new Map());
 
-// map counts object back to an array
-let reducedObjArr = [...counts].map(([key, value]) => {
-    return {key, value}
-  })
+const adjustBearing = (input) => {
+    let aim = 0;
+    let horizontal_position = 0;
+    let depth = 0;
+    for (let i = 0; i < input.length; i++) {
+        if (input[i].direction === "down") {
+            aim = aim + input[i].distance
+        } else if (input[i].direction === "up") {
+            aim = aim - input[i].distance
+        } else {
+            horizontal_position = horizontal_position + input[i].distance
+            depth = depth + input[i].distance*aim
+        }
+    }
 
-let vertical = reducedObjArr.find(( { key } ) => key === 'down').value - reducedObjArr.find(( { key } ) => key === 'up').value
-let horizontal = reducedObjArr.find(( { key } ) => key === 'forward').value
+    return { 
+            horizontal_position: horizontal_position,
+            depth: depth
+        }
+}
 
-// Answer to part one
-console.log("Change in depth: ",vertical)
-console.log("Depth times distance: ",vertical*horizontal)
+const final = adjustBearing(newData)
+
+console.log(final.depth*final.horizontal_position)
